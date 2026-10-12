@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light">
+<title>Для Иры ♥</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+<!-- ================= НАСТРОЙКИ: меняй только этот блок ================= -->
+<script>
+window.CONFIG = {
+  herName: 'Ира',
+  himName: '',                  // твоё имя (можно оставить пустым)
+  herPhoto: 'her.jpg',          // фото Иры: положи файл her.jpg рядом с index.html
+  himPhoto: 'him.jpg',          // твоё фото: файл him.jpg (видно только на твоей странице)
+  pin: '1234',                  // код для твоей скрытой страницы, поменяй на свой
+  greeting: 'Выбери любую кнопку, а остальное сюрприз.',
+
+  firebaseUrl: '',              // адрес базы Firebase, например https://xxx-default-rtdb.europe-west1.firebasedatabase.app
+  tgToken: '',                  // токен Telegram-бота от @BotFather
+  tgChat: '',                   // твой chat id
+
+  items: [
+    { id: 'p1', type: 'place', name: 'Набережная на закате' },
+    { id: 'p2', type: 'place', name: 'Прогулка по старому городу' },
+    { id: 'p3', type: 'place', name: 'Пикник в парке' },
+    { id: 'p4', type: 'place', name: 'Смотровая площадка' },
+    { id: 'v1', type: 'venue', name: 'Уютная кофейня' },
+    { id: 'v2', type: 'venue', name: 'Итальянский ресторан' },
+    { id: 'v3', type: 'venue', name: 'Кино' },
+    { id: 'v4', type: 'venue', name: 'Бар с настольными играми' }
+  ]
+};
+</script>
+<!-- ===================================================================== -->
+
+<style>
+:root {
+  --white: #ffffff; --mist: #f5f5f7; --frost: #fafafc; --hair: #d6d6d6; --ctl: #e6e6e8;
+  --ink: #1d1d1f; --slate: #707070; --steel: #86868b;
+  --link: #0066cc; --blue: #0071e3; --orange: #b64400;
+  --font: "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Inter", "Helvetica Neue", Arial, sans-serif;
+  color-scheme: light;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+html { height: 100%; scroll-padding-top: calc(env(safe-area-inset-top, 0px) + 60px); }
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; min-height: 100%; background: var(--white); color: var(--ink); font: 400 17px/1.47 var(--font); letter-spacing: -.022em; -webkit-font-smoothing: antialiased; }
+button, input, select { font: inherit; letter-spacing: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; }
+[hidden] { display: none !important; }
+p { margin: 0; }
+.inner { max-width: 980px; margin: 0 auto; padding: 0 22px; }
+
+/* type */
+h1 { margin: 0; font-weight: 600; }
+h2 { margin: 0; font-weight: 600; }
+.hero { background: var(--white); padding: 64px 0 48px; text-align: center; }
+.hero h1 { font-size: clamp(40px, 10vw, 80px); line-height: 1.05; letter-spacing: -.015em; }
+.hero.small { padding: 48px 0 36px; }
+.hero.small h1 { font-size: clamp(32px, 7vw, 48px); line-height: 1.08; letter-spacing: -.012em; }
+.hero p { color: var(--slate); max-width: 36ch; margin: 16px auto 0; }
+.band { background: var(--mist); padding: 56px 0 90px; }
+.band + .band { padding-top: 0; }
+.sec { font-size: clamp(24px, 5vw, 28px); line-height: 1.14; margin: 48px 0 16px; }
+.sec:first-child { margin-top: 0; }
+.small { font-size: 14px; line-height: 1.29; letter-spacing: -.016em; }
+.muted { color: var(--slate); }
+
+/* controls */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border-radius: 9999px; border: 1px solid transparent; padding: 12px 24px; font-size: 17px; font-weight: 500; line-height: 1.2; text-decoration: none; transition: background-color .15s, transform .1s; }
+.btn:active { transform: scale(.98); }
+.btn.blue { background: var(--blue); color: var(--white); }
+.btn.blue:hover { background: #0077ed; }
+.btn.outline { background: transparent; border-color: var(--steel); color: var(--ink); }
+.btn.outline:hover { background: var(--ctl); }
+.btn.ink { background: var(--ink); color: var(--white); }
+.btn:disabled { opacity: .5; cursor: wait; }
+.pill { display: inline-flex; align-items: center; border-radius: 9999px; font-size: 12px; line-height: 16px; letter-spacing: -.01em; padding: 6px 14px; border: 1px solid var(--steel); background: transparent; color: var(--ink); }
+.pill[aria-selected="true"] { background: var(--ink); border-color: var(--ink); color: var(--white); }
+.textlink { background: none; border: 0; padding: 4px 0; color: var(--link); font-size: 14px; }
+.textlink:hover { text-decoration: underline; }
+
+/* navigation */
+.localnav { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 10; background: rgba(255, 255, 255, .8); -webkit-backdrop-filter: saturate(180%) blur(20px); backdrop-filter: saturate(180%) blur(20px); border-bottom: 1px solid var(--hair); }
+.localnav .inner { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 52px; padding-top: 6px; padding-bottom: 6px; flex-wrap: wrap; }
+.nav-title { display: flex; align-items: center; gap: 10px; font-size: 19px; font-weight: 600; letter-spacing: .012em; line-height: 1.21; }
+.navtabs { display: flex; gap: 8px; flex-wrap: wrap; }
+.toolbar { display: flex; justify-content: flex-end; gap: 20px; padding-top: 10px; }
+
+/* avatars */
+.av { border-radius: 50%; overflow: hidden; display: grid; place-items: center; flex: 0 0 auto; background: var(--mist); color: var(--ink); font-weight: 600; }
+.av img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.av.sm { width: 32px; height: 32px; font-size: 14px; }
+.av-hero { width: 176px; height: 176px; border-radius: 28px; overflow: hidden; background: var(--mist); display: grid; place-items: center; font-size: 64px; font-weight: 600; color: var(--ink); }
+.av-hero img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+/* landing */
+.landing { min-height: 88vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 36px; padding: 40px 22px; }
+.enter { font-size: 21px; font-weight: 600; padding: 16px 40px; }
+.enter .hrt { display: inline-block; animation: beat 1.8s ease-in-out infinite; }
+@keyframes beat { 0%, 60%, 100% { transform: scale(1); } 15% { transform: scale(1.3); } 30% { transform: scale(1); } 45% { transform: scale(1.2); } }
+.secret { position: fixed; right: 6px; bottom: calc(6px + env(safe-area-inset-bottom, 0px)); width: 44px; height: 44px; border: 0; background: transparent; color: var(--slate); opacity: .22; font-size: 22px; line-height: 1; border-radius: 50%; }
+.secret:hover { opacity: .5; }
+
+/* picker */
+.choices { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.choice { background: var(--white); border: 0; border-radius: 28px; padding: 28px; min-height: 240px; display: flex; flex-direction: column; justify-content: space-between; align-items: flex-start; text-align: left; transition: transform .2s; }
+.choice:hover:not(:disabled) { transform: scale(1.01); }
+.choice:active:not(:disabled) { transform: scale(.985); }
+.choice:disabled { opacity: .55; cursor: wait; }
+.choice .ico { width: 36px; height: 36px; color: var(--ink); }
+.ctitle { display: block; font-size: clamp(26px, 6vw, 40px); font-weight: 600; line-height: 1.05; }
+.csub { display: block; color: var(--slate); font-size: 14px; margin-top: 6px; }
+.clink { display: block; color: var(--link); margin-top: 14px; }
+.surprise-wrap { text-align: center; margin-top: 24px; }
+.avoid { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 20px; color: var(--slate); font-size: 14px; cursor: pointer; }
+.avoid input { width: 18px; height: 18px; accent-color: var(--blue); }
+
+#stage { position: relative; margin-top: 20px; }
+.ticket { background: var(--white); border-radius: 28px; padding: 28px; position: relative; }
+.ticket.pop { animation: pop .45s cubic-bezier(.2, 1.3, .4, 1); }
+.kind { color: var(--orange); font-size: 12px; line-height: 16px; font-weight: 600; letter-spacing: -.01em; }
+.where { font-size: clamp(28px, 6vw, 40px); line-height: 1.1; margin: 10px 0 0; min-height: 2.2em; overflow-wrap: anywhere; }
+.rolling .where { color: var(--steel); }
+.actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--hair); }
+.plan label { display: block; font-weight: 600; margin-bottom: 8px; }
+.plan .err { color: var(--orange); font-size: 14px; margin-top: 8px; min-height: 1.3em; }
+.done-text { font-size: 17px; }
+.done-text strong { font-weight: 600; font-size: 24px; line-height: 1.2; display: block; margin: 4px 0; }
+.note { background: var(--white); border-radius: 28px; padding: 24px 28px; color: var(--slate); }
+.heart { position: absolute; bottom: 30%; font-size: 22px; color: var(--orange); pointer-events: none; animation: floatUp 1.6s ease-out forwards; z-index: 3; }
+@keyframes floatUp { 0% { transform: translateY(0) scale(.5); opacity: 0; } 15% { opacity: 1; } 100% { transform: translateY(-190px) scale(1.2) rotate(var(--r, 0deg)); opacity: 0; } }
+@keyframes pop { 0% { transform: scale(.95); } 100% { transform: scale(1); } }
+
+/* forms */
+input[type="text"], input[type="password"], input[type="datetime-local"], select { width: 100%; background: var(--white); border: 1px solid var(--steel); border-radius: 980px; padding: 11px 22px; min-height: 46px; font-size: 17px; }
+input:focus, select:focus { border-color: var(--blue); outline: 2px solid var(--blue); outline-offset: 1px; }
+.add { display: flex; gap: 10px; margin-top: 12px; }
+.add input { flex: 1; min-width: 0; }
+
+/* rows */
+.rows { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.row { display: flex; align-items: center; gap: 14px; background: var(--white); border-radius: 20px; padding: 14px 18px; min-height: 58px; }
+.row .name { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.row .meta { font-size: 12px; color: var(--slate); }
+.dot { width: 8px; height: 8px; border-radius: 50%; flex: 0 0 auto; background: var(--ink); }
+.dot.venue { background: var(--steel); }
+.del { background: transparent; border: 0; color: var(--slate); font-size: 22px; line-height: 1; width: 36px; height: 36px; border-radius: 50%; }
+.del:hover { background: var(--ctl); color: var(--ink); }
+.empty { color: var(--slate); font-size: 14px; padding: 4px 2px; }
+.check { width: 28px; height: 28px; flex: 0 0 auto; border-radius: 50%; border: 1.5px solid var(--steel); background: transparent; display: grid; place-items: center; padding: 0; transition: background-color .15s, border-color .15s; }
+.check svg { width: 16px; height: 16px; opacity: 0; transform: scale(.5); transition: opacity .15s, transform .2s; stroke: var(--white); }
+.check[aria-checked="true"] { background: var(--ink); border-color: var(--ink); }
+.check[aria-checked="true"] svg { opacity: 1; transform: scale(1); }
+.row.visited .name { color: var(--slate); text-decoration: line-through; text-decoration-color: var(--steel); }
+span.check { cursor: default; }
+.progress { background: var(--white); border-radius: 28px; padding: 24px 28px; }
+.bar { height: 6px; border-radius: 999px; background: var(--ctl); margin-top: 14px; overflow: hidden; }
+.bar > i { display: block; height: 100%; background: var(--ink); border-radius: 999px; transition: width .4s; }
+.rows .log { display: block; background: var(--white); border-radius: 28px; padding: 24px 28px; }
+.log .what { font-size: 24px; font-weight: 600; line-height: 1.17; margin: 8px 0 4px; overflow-wrap: anywhere; }
+.log .when { color: var(--slate); font-size: 14px; }
+.log .acts { display: flex; gap: 10px; margin-top: 16px; align-items: center; }
+.warn { background: var(--white); border: 1px solid var(--hair); border-radius: 20px; padding: 14px 18px; font-size: 14px; color: var(--slate); margin-bottom: 20px; }
+
+/* pin */
+.overlay { position: fixed; inset: 0; background: rgba(29, 29, 31, .4); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); display: grid; place-items: center; padding: 20px; z-index: 30; }
+.card { background: var(--white); border-radius: 28px; padding: 28px; width: 100%; max-width: 340px; }
+.card h2 { font-size: 24px; margin-bottom: 14px; }
+.card .err { color: var(--orange); min-height: 1.4em; font-size: 14px; margin-top: 8px; }
+.card .actions { border: 0; padding-top: 0; margin-top: 12px; }
+
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+@media (max-width: 640px) {
+  .hero { padding: 44px 0 32px; }
+  .band { padding: 36px 0 64px; }
+  .choices { gap: 12px; }
+  .choice { padding: 20px; min-height: 200px; }
+  .sec { margin-top: 36px; }
+  .av-hero { width: 144px; height: 144px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ===== ВХОД ===== -->
+<section id="s-landing" class="landing">
+  <div class="av-hero" id="av-her" aria-hidden="true"></div>
+  <button class="btn blue enter" id="enter" type="button"><span id="enter-name"></span> <span class="hrt">♥</span></button>
+</section>
+
+<!-- ===== ЕЁ ЭКРАН ===== -->
+<section id="s-her" hidden>
+  <nav class="localnav" aria-label="Разделы">
+    <div class="inner">
+      <span class="nav-title" id="her-nav"></span>
+      <div class="navtabs" role="tablist">
+        <button class="pill" role="tab" data-tab="pick" aria-selected="true">Выбор</button>
+        <button class="pill" role="tab" data-tab="visited" aria-selected="false">Были</button>
+      </div>
+    </div>
+  </nav>
+
+  <div data-panel="pick">
+    <div class="hero">
+      <div class="inner">
+        <h1>Куда пойдём?</h1>
+        <p id="her-greet"></p>
+      </div>
+    </div>
+    <div class="band">
+      <div class="inner">
+        <div class="choices">
+          <button class="choice" type="button" data-kind="place">
+            <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-6.2 7-11.5A7 7 0 0 0 5 9.5C5 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>
+            <span><span class="ctitle">Место</span><span class="csub" id="cnt-place"></span><span class="clink">Выбрать ›</span></span>
+          </button>
+          <button class="choice" type="button" data-kind="venue">
+            <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 9h11v4a5 5 0 0 1-5 5h-1a5 5 0 0 1-5-5V9z"/><path d="M16 10h1.5a2.5 2.5 0 0 1 0 5H16"/><path d="M8 4v2M12 4v2"/></svg>
+            <span><span class="ctitle">Заведение</span><span class="csub" id="cnt-venue"></span><span class="clink">Выбрать ›</span></span>
+          </button>
+        </div>
+        <div class="surprise-wrap"><button class="btn outline" type="button" data-kind="any">Сюрприз: выберу сам из всего</button></div>
+        <label class="avoid"><input type="checkbox" id="avoid" checked> Только там, где ещё не были</label>
+        <div id="stage" aria-live="polite"></div>
+      </div>
+    </div>
+  </div>
+
+  <div data-panel="visited" hidden>
+    <div class="hero small"><div class="inner"><h1>Где были</h1></div></div>
+    <div class="band"><div class="inner">
+      <div class="progress"><div id="her-vis-summary"></div><div class="bar"><i id="her-vis-bar" style="width:0%"></i></div></div>
+      <h2 class="sec">Были</h2><ul class="rows" id="her-vis-done"></ul>
+      <h2 class="sec">Ещё впереди</h2><ul class="rows" id="her-vis-todo"></ul>
+    </div></div>
+  </div>
+</section>
+
+<!-- ===== ЕГО СТРАНИЦА ===== -->
+<section id="s-him" hidden>
+  <nav class="localnav" aria-label="Разделы">
+    <div class="inner">
+      <span class="nav-title"><span class="av sm" id="av-him-sm"></span><span id="him-who"></span></span>
+      <div class="navtabs" role="tablist">
+        <button class="pill" role="tab" data-tab="log" aria-selected="true">Она выбрала</button>
+        <button class="pill" role="tab" data-tab="list" aria-selected="false">Список</button>
+        <button class="pill" role="tab" data-tab="visited" aria-selected="false">Были</button>
+      </div>
+    </div>
+  </nav>
+  <div class="inner toolbar">
+    <button class="textlink" type="button" id="refresh">Обновить</button>
+    <button class="textlink" type="button" id="exit">Выйти</button>
+  </div>
+
+  <div data-panel="log">
+    <div class="hero small"><div class="inner"><h1>Что выбрала</h1></div></div>
+    <div class="band"><div class="inner">
+      <div class="warn" id="mode-warn" hidden></div>
+      <ul class="rows" id="log-list"></ul>
+    </div></div>
+  </div>
+
+  <div data-panel="list" hidden>
+    <div class="hero small"><div class="inner"><h1>Список</h1><p>Добавляй и удаляй варианты. Ира видит этот список.</p></div></div>
+    <div class="band"><div class="inner">
+      <h2 class="sec">Место</h2><ul class="rows" id="list-place"></ul>
+      <div class="add"><input type="text" id="add-place" maxlength="80" placeholder="Например, смотровая на закате" autocomplete="off"><button class="btn ink" type="button" data-add="place">Добавить</button></div>
+      <h2 class="sec">Заведение</h2><ul class="rows" id="list-venue"></ul>
+      <div class="add"><input type="text" id="add-venue" maxlength="80" placeholder="Например, кофейня с видом" autocomplete="off"><button class="btn ink" type="button" data-add="venue">Добавить</button></div>
+    </div></div>
+  </div>
+
+  <div data-panel="visited" hidden>
+    <div class="hero small"><div class="inner"><h1>Где были</h1></div></div>
+    <div class="band"><div class="inner">
+      <div class="progress"><div id="him-vis-summary"></div><div class="bar"><i id="him-vis-bar" style="width:0%"></i></div></div>
+      <h2 class="sec">Были</h2><ul class="rows" id="him-vis-done"></ul>
+      <h2 class="sec">Ещё впереди</h2><ul class="rows" id="him-vis-todo"></ul>
+    </div></div>
+  </div>
+</section>
+
+<button class="secret" id="secret" type="button" aria-label="Для автора">♡</button>
+
+<div class="overlay" id="pin" hidden>
+  <div class="card" role="dialog" aria-modal="true" aria-labelledby="pin-title">
+    <h2 id="pin-title">Код</h2>
+    <input type="password" id="pin-in" inputmode="numeric" autocomplete="off" aria-label="Код">
+    <div class="err" id="pin-err" role="alert"></div>
+    <div class="actions">
+      <button class="btn blue" type="button" id="pin-ok">Войти</button>
+      <button class="btn outline" type="button" id="pin-cancel">Отмена</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var C = window.CONFIG;
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  var uid = function () { return Math.random().toString(36).slice(2, 9); };
+  var esc = function (s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
+  var KIND = { place: 'Место', venue: 'Заведение' };
+  var CHECK_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+  var useDb = !!C.firebaseUrl, tgOn = !!(C.tgToken && C.tgChat);
+
+  function today() { var d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+  function fmtDate(s) { var d = new Date(s + 'T00:00:00'); return isNaN(d) ? '' : d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' }); }
+  function fmtWhen(v) { var d = new Date(v); return isNaN(d) ? v : d.toLocaleString('ru-RU', { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' }); }
+  function fmtTs(t) { return new Date(t).toLocaleString('ru-RU', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' }); }
+  function plural(n) { var m = n % 10, h = n % 100; if (m === 1 && h !== 11) return n + ' вариант'; if (m >= 2 && m <= 4 && (h < 12 || h > 14)) return n + ' варианта'; return n + ' вариантов'; }
+
+  /* ---------- хранилище: Firebase (если настроен) или этот браузер ---------- */
+  var LS = { items: 'ds3-items', visited: 'ds3-visited', choices: 'ds3-choices' };
+  function lsGet(k, d) { try { var v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } }
+  function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+  function dbUrl(p) { return C.firebaseUrl.replace(/\/+$/, '') + '/' + p + '.json'; }
+  function dbReq(p, method, body) {
+    return fetch(dbUrl(p), { method: method || 'GET', body: body === undefined ? undefined : JSON.stringify(body) })
+      .then(function (r) { if (!r.ok) throw new Error('db ' + r.status); return r.json(); });
+  }
+  function toArr(x) { return Array.isArray(x) ? x.filter(Boolean) : Object.keys(x || {}).map(function (k) { return x[k]; }); }
+
+  var items = (C.items || []).slice(), visited = {}, choices = [], dbOk = false;
+
+  function load() {
+    if (useDb) {
+      return dbReq('').then(function (all) {
+        all = all || {};
+        if (all.items) items = toArr(all.items).map(function (i) { return { id: i.id, type: i.type === 'venue' ? 'venue' : 'place', name: String(i.name) }; });
+        else items = (C.items || []).slice();
+        visited = all.visited || {};
+        choices = Object.keys(all.choices || {}).map(function (k) { var c = all.choices[k]; c.key = k; return c; });
+        dbOk = true;
+      }).catch(function () { dbOk = false; loadLocal(); });
+    }
+    loadLocal();
+    return Promise.resolve();
+  }
+  function loadLocal() {
+    items = lsGet(LS.items, null) || (C.items || []).slice();
+    visited = lsGet(LS.visited, {});
+    choices = lsGet(LS.choices, []);
+  }
+  function saveItems() {
+    lsSet(LS.items, items);
+    if (useDb) dbReq('items', 'PUT', items).catch(function () {});
+  }
+  function setVisited(id, on) {
+    if (on) visited[id] = today(); else delete visited[id];
+    lsSet(LS.visited, visited);
+    if (useDb) dbReq('visited/' + id, on ? 'PUT' : 'DELETE', on ? visited[id] : undefined).catch(function () {});
+  }
+  function recordChoice(c) {
+    var local = lsGet(LS.choices, []); c.key = String(c.ts); local.push(c); lsSet(LS.choices, local);
+    if (useDb) dbReq('choices', 'POST', { itemId: c.itemId, name: c.name, type: c.type, when: c.when, ts: c.ts }).catch(function () {});
+    if (tgOn) {
+      var text = '💘 ' + C.herName + ' выбрала: ' + c.name + ' (' + KIND[c.type] + ')\nКогда: ' + fmtWhen(c.when);
+      fetch('https://api.telegram.org/bot' + C.tgToken + '/sendMessage?chat_id=' + encodeURIComponent(C.tgChat) + '&text=' + encodeURIComponent(text)).catch(function () {});
+    }
+  }
+  function deleteChoice(key) {
+    choices = choices.filter(function (c) { return c.key !== key; });
+    lsSet(LS.choices, lsGet(LS.choices, []).filter(function (c) { return c.key !== key; }));
+    if (useDb) dbReq('choices/' + key, 'DELETE').catch(function () {});
+  }
+
+  /* ---------- аватарки и тексты ---------- */
+  function avatar(el, src, fallback) {
+    el.innerHTML = '';
+    var fb = document.createElement('span'); fb.textContent = fallback; el.appendChild(fb);
+    if (src) { var img = new Image(); img.alt = ''; img.onload = function () { fb.remove(); el.appendChild(img); }; img.src = src; }
+  }
+  var herLetter = (C.herName || '?').trim().charAt(0).toUpperCase();
+  var himLetter = C.himName ? C.himName.trim().charAt(0).toUpperCase() : '♥';
+  avatar($('#av-her'), C.herPhoto, herLetter);
+  avatar($('#av-him-sm'), C.himPhoto, himLetter);
+  $('#enter-name').textContent = C.herName;
+  $('#her-nav').textContent = C.herName + ' ♥';
+  $('#her-greet').textContent = C.greeting || ''; $('#her-greet').hidden = !C.greeting;
+  $('#him-who').textContent = C.himName ? 'Привет, ' + C.himName : 'Твоя страница';
+  document.title = 'Для ' + C.herName.replace(/а$/, 'ы') + ' ♥';
+
+  /* ---------- экраны и вкладки ---------- */
+  function show(name) {
+    ['landing', 'her', 'him'].forEach(function (n) { $('#s-' + n).hidden = n !== name; });
+    $('#secret').hidden = name === 'him';
+    window.scrollTo(0, 0);
+    if (name === 'him') startPoll(); else stopPoll();
+  }
+  $$('.navtabs').forEach(function (bar) {
+    var scope = bar.closest('section');
+    $$('.pill', bar).forEach(function (b) {
+      b.addEventListener('click', function () {
+        $$('.pill', bar).forEach(function (x) { x.setAttribute('aria-selected', x === b ? 'true' : 'false'); });
+        $$('[data-panel]', scope).forEach(function (p) { p.hidden = p.dataset.panel !== b.dataset.tab; });
+        window.scrollTo(0, 0);
+      });
+    });
+  });
+  $('#enter').addEventListener('click', function () { show('her'); renderHer(); });
+
+  /* ---------- её выбор ---------- */
+  var rolling = false, lastId = null, lastKind = 'any', current = null, stage = $('#stage');
+  function pool(kind) {
+    var arr = items.filter(function (i) { return kind === 'any' || i.type === kind; });
+    if ($('#avoid').checked) arr = arr.filter(function (i) { return !visited[i.id]; });
+    return arr;
+  }
+  function setButtons(off) { $$('.choice, [data-kind="any"]').forEach(function (b) { b.disabled = off; }); }
+  function ticket(type, name, inner, cls) {
+    var label = type === 'any' ? 'Выбираю…' : KIND[type];
+    return '<article class="ticket ' + (cls || '') + '"><div class="kind">' + label + '</div><h2 class="where">' + esc(name) + '</h2>' + (inner || '') + '</article>';
+  }
+  function roll(kind) {
+    if (rolling) return; lastKind = kind;
+    var arr = pool(kind);
+    if (!arr.length) {
+      var anyV = items.some(function (i) { return (kind === 'any' || i.type === kind) && visited[i.id]; });
+      stage.innerHTML = '<div class="note">' + (anyV ? 'Здесь уже везде были. Сними галочку «Только там, где ещё не были», чтобы выбрать из всех.' : 'Здесь пока пусто. Скоро появятся варианты.') + '</div>';
+      return;
+    }
+    rolling = true; setButtons(true);
+    var final; do { final = arr[Math.floor(Math.random() * arr.length)]; } while (arr.length > 1 && final.id === lastId);
+    stage.innerHTML = ticket(kind, '…', '', 'rolling');
+    var nameEl = stage.querySelector('.where');
+    var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var total = reduce ? 0 : 1500, start = performance.now();
+    (function tick() {
+      var t = performance.now() - start;
+      if (t >= total) { land(final); return; }
+      nameEl.textContent = arr[Math.floor(Math.random() * arr.length)].name;
+      setTimeout(tick, 70 + (t / total) * 180);
+    })();
+  }
+  function land(item) {
+    current = item; lastId = item.id; rolling = false; setButtons(false);
+    stage.innerHTML = ticket(item.type, item.name, '<div class="actions"><button class="btn blue" type="button" id="go">Идём ♥</button><button class="btn outline" type="button" id="again">Выбрать другое</button></div>', 'pop');
+    burst();
+    $('#go').addEventListener('click', plan);
+    $('#again').addEventListener('click', function () { roll(lastKind); });
+    stage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+  function burst() {
+    if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    for (var i = 0; i < 12; i++) {
+      var h = document.createElement('span'); h.className = 'heart'; h.textContent = '♥';
+      h.style.left = (8 + Math.random() * 84) + '%'; h.style.animationDelay = (Math.random() * 0.4) + 's';
+      h.style.setProperty('--r', (Math.random() * 60 - 30) + 'deg');
+      stage.appendChild(h); (function (el) { setTimeout(function () { el.remove(); }, 2200); })(h);
+    }
+  }
+  function plan() {
+    var ticketEl = stage.querySelector('.ticket'); var old = ticketEl.querySelector('.actions'); if (old) old.remove();
+    var box = document.createElement('div'); box.className = 'plan';
+    box.innerHTML = '<div class="actions" style="display:block"><label for="when">Когда пойдём?</label><input type="datetime-local" id="when"><div class="err" id="whenErr" role="alert"></div>' +
+      '<div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:8px"><button class="btn blue" type="button" id="confirm">Договорились</button><button class="btn outline" type="button" id="back">Выбрать другое</button></div></div>';
+    ticketEl.appendChild(box);
+    $('#back').addEventListener('click', function () { roll(lastKind); });
+    $('#confirm').addEventListener('click', function () {
+      var v = $('#when').value;
+      if (!v) { $('#whenErr').textContent = 'Выбери дату и время.'; return; }
+      recordChoice({ itemId: current.id, name: current.name, type: current.type, when: v, ts: Date.now() });
+      var delivered = useDb || tgOn;
+      var msg = 'Я выбрала: ' + current.name + '. Когда: ' + fmtWhen(v) + ' ♥';
+      box.innerHTML = '<div class="actions" style="display:block"><p class="done-text">Договорились<strong>' + esc(current.name) + '</strong>' + esc(fmtWhen(v)) + '</p>' +
+        (delivered ? '<p class="muted" style="margin-top:14px">Я уже знаю, что ты выбрала ♥</p>'
+          : '<p class="muted" style="margin-top:14px">Скопируй и отправь мне ♥</p><div style="margin-top:14px"><button class="btn blue" type="button" id="copyAns">Скопировать ответ</button></div>') + '</div>';
+      burst();
+      var cb = $('#copyAns');
+      if (cb) cb.addEventListener('click', function () {
+        if (navigator.clipboard) navigator.clipboard.writeText(msg).then(function () { cb.textContent = 'Скопировано'; });
+      });
+    });
+  }
+  $$('.choice, [data-kind="any"]').forEach(function (b) { b.addEventListener('click', function () { roll(b.dataset.kind); }); });
+  $('#avoid').addEventListener('change', updateCounts);
+  function updateCounts() { $('#cnt-place').textContent = plural(pool('place').length); $('#cnt-venue').textContent = plural(pool('venue').length); }
+
+  /* ---------- «Были» ---------- */
+  function visRow(i, editable) {
+    var on = !!visited[i.id];
+    var box = editable
+      ? '<button class="check" type="button" role="checkbox" aria-checked="' + on + '" data-toggle="' + esc(i.id) + '" aria-label="Были: ' + esc(i.name) + '">' + CHECK_SVG + '</button>'
+      : '<span class="check" aria-hidden="true" aria-checked="' + on + '">' + CHECK_SVG + '</span>';
+    return '<li class="row ' + (on ? 'visited' : '') + '">' + box + '<span class="name">' + esc(i.name) + '<br><span class="meta">' + KIND[i.type] + (on ? ' · ' + fmtDate(visited[i.id]) : '') + '</span></span></li>';
+  }
+  function renderVisited(prefix, editable) {
+    var done = items.filter(function (i) { return visited[i.id]; }).sort(function (a, b) { return String(visited[b.id]).localeCompare(String(visited[a.id])); });
+    var todo = items.filter(function (i) { return !visited[i.id]; });
+    $('#' + prefix + '-vis-summary').innerHTML = items.length ? 'Были в <strong>' + done.length + '</strong> из ' + items.length : 'Пока ничего нет';
+    $('#' + prefix + '-vis-bar').style.width = items.length ? Math.round(done.length / items.length * 100) + '%' : '0%';
+    $('#' + prefix + '-vis-done').innerHTML = done.length ? done.map(function (i) { return visRow(i, editable); }).join('') : '<li class="empty">Пока нигде не были. Всё впереди.</li>';
+    $('#' + prefix + '-vis-todo').innerHTML = todo.length ? todo.map(function (i) { return visRow(i, editable); }).join('') : '<li class="empty">Везде побывали.</li>';
+  }
+  function renderHer() { updateCounts(); renderVisited('her', false); }
+
+  /* ---------- его страница ---------- */
+  function renderLog() {
+    var w = $('#mode-warn');
+    if (!useDb) { w.hidden = false; w.textContent = 'База не подключена: здесь видны только выборы, сделанные в этом же браузере. Подключи Firebase (см. инструкцию), и ты увидишь выборы с её телефона.'; }
+    else if (!dbOk) { w.hidden = false; w.textContent = 'Не удалось связаться с базой. Проверь адрес Firebase и правила доступа.'; }
+    else w.hidden = true;
+    var list = choices.slice().sort(function (a, b) { return b.ts - a.ts; });
+    $('#log-list').innerHTML = list.length ? list.map(function (c) {
+      var seen = !!visited[c.itemId];
+      return '<li class="log"><div class="kind">' + KIND[c.type] + '</div><div class="what">' + esc(c.name) + '</div>' +
+        '<div class="when">' + esc(fmtWhen(c.when)) + '</div><div class="when">Выбрано ' + esc(fmtTs(c.ts)) + '</div>' +
+        '<div class="acts"><button class="btn outline" type="button" style="padding:6px 16px;font-size:14px" data-seen="' + esc(c.itemId) + '">' + (seen ? 'Были ✓' : 'Отметить: были') + '</button>' +
+        '<button class="del" type="button" data-delchoice="' + esc(c.key) + '" aria-label="Удалить запись">×</button></div></li>';
+    }).join('') : '<li class="empty">Она пока ничего не выбрала.</li>';
+  }
+  function renderLists() {
+    ['place', 'venue'].forEach(function (t) {
+      var arr = items.filter(function (i) { return i.type === t; });
+      $('#list-' + t).innerHTML = arr.length ? arr.map(function (i) {
+        return '<li class="row"><span class="dot ' + t + '"></span><span class="name">' + esc(i.name) + '</span><button class="del" type="button" data-del="' + esc(i.id) + '" aria-label="Удалить ' + esc(i.name) + '">×</button></li>';
+      }).join('') : '<li class="empty">Пока пусто.</li>';
+    });
+  }
+  function renderHim() { renderLog(); renderLists(); renderVisited('him', true); }
+
+  $('#s-him').addEventListener('click', function (e) {
+    var t;
+    if ((t = e.target.closest('[data-toggle]'))) { setVisited(t.dataset.toggle, !visited[t.dataset.toggle]); renderHim(); }
+    else if ((t = e.target.closest('[data-seen]'))) { setVisited(t.dataset.seen, !visited[t.dataset.seen]); renderHim(); }
+    else if ((t = e.target.closest('[data-delchoice]'))) { deleteChoice(t.dataset.delchoice); renderHim(); }
+    else if ((t = e.target.closest('[data-del]'))) { items = items.filter(function (i) { return i.id !== t.dataset.del; }); saveItems(); renderHim(); }
+    else if ((t = e.target.closest('[data-add]'))) {
+      var inp = $('#add-' + t.dataset.add), name = inp.value.trim(); if (!name) return;
+      items.push({ id: uid(), type: t.dataset.add, name: name }); inp.value = ''; saveItems(); renderHim(); inp.focus();
+    }
+  });
+  ['place', 'venue'].forEach(function (t) {
+    $('#add-' + t).addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); $('[data-add="' + t + '"]').click(); } });
+  });
+  var poll = null;
+  function startPoll() { stopPoll(); poll = setInterval(function () { load().then(renderHim); }, 15000); }
+  function stopPoll() { if (poll) clearInterval(poll); poll = null; }
+  $('#refresh').addEventListener('click', function () { load().then(renderHim); });
+  $('#exit').addEventListener('click', function () { try { sessionStorage.removeItem('ds3-auth'); } catch (e) {} show('landing'); });
+
+  /* ---------- вход для автора ---------- */
+  function openHim() { show('him'); load().then(function () { renderHim(); renderHer(); }); }
+  function askPin() { $('#pin').hidden = false; $('#pin-in').value = ''; $('#pin-err').textContent = ''; $('#pin-in').focus(); }
+  $('#secret').addEventListener('click', function () {
+    var ok = false; try { ok = sessionStorage.getItem('ds3-auth') === '1'; } catch (e) {}
+    if (ok) openHim(); else askPin();
+  });
+  function checkPin() {
+    if ($('#pin-in').value === String(C.pin)) {
+      try { sessionStorage.setItem('ds3-auth', '1'); } catch (e) {}
+      $('#pin').hidden = true; openHim();
+    } else { $('#pin-err').textContent = 'Неверный код.'; }
+  }
+  $('#pin-ok').addEventListener('click', checkPin);
+  $('#pin-in').addEventListener('keydown', function (e) { if (e.key === 'Enter') checkPin(); if (e.key === 'Escape') $('#pin').hidden = true; });
+  $('#pin-cancel').addEventListener('click', function () { $('#pin').hidden = true; });
+
+  /* ---------- старт ---------- */
+  show('landing');
+  load().then(renderHer);
+})();
+</script>
+</body>
+</html>
