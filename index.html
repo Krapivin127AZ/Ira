@@ -19,7 +19,7 @@ window.CONFIG = {
   pin: '1234',                  // код для твоей скрытой страницы, поменяй на свой
   greeting: 'Выбери любую кнопку, а остальное сюрприз.',
 
-  firebaseUrl: '',              // адрес базы Firebase, например https://xxx-default-rtdb.europe-west1.firebasedatabase.app
+  firebaseUrl: 'https://dates-c387e-default-rtdb.firebaseio.com',              // адрес базы Firebase, например https://xxx-default-rtdb.europe-west1.firebasedatabase.app
   tgToken: '',                  // токен Telegram-бота от @BotFather
   tgChat: '',                   // твой chat id
 
@@ -99,7 +99,7 @@ h2 { margin: 0; font-weight: 600; }
 .av img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .av.sm { width: 32px; height: 32px; font-size: 14px; }
 .av-hero { width: 176px; height: 176px; border-radius: 28px; overflow: hidden; background: var(--mist); display: grid; place-items: center; font-size: 64px; font-weight: 600; color: var(--ink); }
-.av-hero img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.av-hero img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 30%; display: block; }
 
 /* landing */
 .landing { min-height: 88vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 36px; padding: 40px 22px; }
@@ -177,6 +177,12 @@ span.check { cursor: default; }
 .card .err { color: var(--orange); min-height: 1.4em; font-size: 14px; margin-top: 8px; }
 .card .actions { border: 0; padding-top: 0; margin-top: 12px; }
 
+.pcard { background: var(--white); border-radius: 28px; padding: 24px 28px; display: grid; gap: 10px; }
+.prow { display: flex; align-items: center; gap: 20px; margin-bottom: 8px; }
+.av-hero.sm { width: 96px; height: 96px; font-size: 36px; border-radius: 24px; }
+.pbtns { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
+.flabel { font-weight: 600; font-size: 14px; margin-top: 6px; }
+.savebar { display: flex; align-items: center; gap: 16px; margin-top: 28px; }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
 @media (max-width: 640px) {
   .hero { padding: 44px 0 32px; }
@@ -253,6 +259,7 @@ span.check { cursor: default; }
         <button class="pill" role="tab" data-tab="log" aria-selected="true">Она выбрала</button>
         <button class="pill" role="tab" data-tab="list" aria-selected="false">Список</button>
         <button class="pill" role="tab" data-tab="visited" aria-selected="false">Были</button>
+        <button class="pill" role="tab" data-tab="profile" aria-selected="false">Профиль</button>
       </div>
     </div>
   </nav>
@@ -285,6 +292,45 @@ span.check { cursor: default; }
       <div class="progress"><div id="him-vis-summary"></div><div class="bar"><i id="him-vis-bar" style="width:0%"></i></div></div>
       <h2 class="sec">Были</h2><ul class="rows" id="him-vis-done"></ul>
       <h2 class="sec">Ещё впереди</h2><ul class="rows" id="him-vis-todo"></ul>
+    </div></div>
+  </div>
+
+  <div data-panel="profile" hidden>
+    <div class="hero small"><div class="inner"><h1>Профиль</h1><p>Здесь можно поменять, что видит Ира: имя, фото и приветствие.</p></div></div>
+    <div class="band"><div class="inner">
+      <h2 class="sec">Ира</h2>
+      <div class="pcard">
+        <div class="prow">
+          <div class="av-hero sm" id="pf-her-av"></div>
+          <div class="pbtns">
+            <button class="btn outline" type="button" id="pf-her-pick">Выбрать фото</button>
+            <button class="textlink" type="button" id="pf-her-clear">Убрать фото</button>
+          </div>
+        </div>
+        <label class="flabel" for="pf-her-name">Имя</label>
+        <input type="text" id="pf-her-name" maxlength="30" autocomplete="off">
+        <label class="flabel" for="pf-greet">Приветствие на странице выбора</label>
+        <input type="text" id="pf-greet" maxlength="120" autocomplete="off">
+      </div>
+
+      <h2 class="sec">Ты</h2>
+      <div class="pcard">
+        <div class="prow">
+          <div class="av-hero sm" id="pf-him-av"></div>
+          <div class="pbtns">
+            <button class="btn outline" type="button" id="pf-him-pick">Выбрать фото</button>
+            <button class="textlink" type="button" id="pf-him-clear">Убрать фото</button>
+          </div>
+        </div>
+        <label class="flabel" for="pf-him-name">Твоё имя</label>
+        <input type="text" id="pf-him-name" maxlength="30" autocomplete="off">
+      </div>
+
+      <div class="savebar">
+        <button class="btn blue" type="button" id="pf-save">Сохранить</button>
+        <span class="muted small" id="pf-status" role="status"></span>
+      </div>
+      <input type="file" id="pf-file" accept="image/*" hidden>
     </div></div>
   </div>
 </section>
@@ -321,7 +367,7 @@ span.check { cursor: default; }
   function plural(n) { var m = n % 10, h = n % 100; if (m === 1 && h !== 11) return n + ' вариант'; if (m >= 2 && m <= 4 && (h < 12 || h > 14)) return n + ' варианта'; return n + ' вариантов'; }
 
   /* ---------- хранилище: Firebase (если настроен) или этот браузер ---------- */
-  var LS = { items: 'ds3-items', visited: 'ds3-visited', choices: 'ds3-choices' };
+  var LS = { items: 'ds3-items', visited: 'ds3-visited', choices: 'ds3-choices', profile: 'ds3-profile' };
   function lsGet(k, d) { try { var v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } }
   function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
   function dbUrl(p) { return C.firebaseUrl.replace(/\/+$/, '') + '/' + p + '.json'; }
@@ -340,6 +386,7 @@ span.check { cursor: default; }
         if (all.items) items = toArr(all.items).map(function (i) { return { id: i.id, type: i.type === 'venue' ? 'venue' : 'place', name: String(i.name) }; });
         else items = (C.items || []).slice();
         visited = all.visited || {};
+        profile = all.profile || {};
         choices = Object.keys(all.choices || {}).map(function (k) { var c = all.choices[k]; c.key = k; return c; });
         dbOk = true;
       }).catch(function () { dbOk = false; loadLocal(); });
@@ -350,6 +397,7 @@ span.check { cursor: default; }
   function loadLocal() {
     items = lsGet(LS.items, null) || (C.items || []).slice();
     visited = lsGet(LS.visited, {});
+    profile = lsGet(LS.profile, {});
     choices = lsGet(LS.choices, []);
   }
   function saveItems() {
@@ -365,7 +413,7 @@ span.check { cursor: default; }
     var local = lsGet(LS.choices, []); c.key = String(c.ts); local.push(c); lsSet(LS.choices, local);
     if (useDb) dbReq('choices', 'POST', { itemId: c.itemId, name: c.name, type: c.type, when: c.when, ts: c.ts }).catch(function () {});
     if (tgOn) {
-      var text = '💘 ' + C.herName + ' выбрала: ' + c.name + ' (' + KIND[c.type] + ')\nКогда: ' + fmtWhen(c.when);
+      var text = '💘 ' + P('herName') + ' выбрала: ' + c.name + ' (' + KIND[c.type] + ')\nКогда: ' + fmtWhen(c.when);
       fetch('https://api.telegram.org/bot' + C.tgToken + '/sendMessage?chat_id=' + encodeURIComponent(C.tgChat) + '&text=' + encodeURIComponent(text)).catch(function () {});
     }
   }
@@ -381,15 +429,21 @@ span.check { cursor: default; }
     var fb = document.createElement('span'); fb.textContent = fallback; el.appendChild(fb);
     if (src) { var img = new Image(); img.alt = ''; img.onload = function () { fb.remove(); el.appendChild(img); }; img.src = src; }
   }
-  var herLetter = (C.herName || '?').trim().charAt(0).toUpperCase();
-  var himLetter = C.himName ? C.himName.trim().charAt(0).toUpperCase() : '♥';
-  avatar($('#av-her'), C.herPhoto, herLetter);
-  avatar($('#av-him-sm'), C.himPhoto, himLetter);
-  $('#enter-name').textContent = C.herName;
-  $('#her-nav').textContent = C.herName + ' ♥';
-  $('#her-greet').textContent = C.greeting || ''; $('#her-greet').hidden = !C.greeting;
-  $('#him-who').textContent = C.himName ? 'Привет, ' + C.himName : 'Твоя страница';
-  document.title = 'Для ' + C.herName.replace(/а$/, 'ы') + ' ♥';
+  var profile = {};
+  function P(k) { var v = profile[k]; return (v === undefined || v === null || v === '') ? (C[k] || '') : v; }
+  function photoOf(obj, k) { var v = obj[k]; if (v === 'none') return null; return v || C[k] || null; }
+  function letterOf(name, fb) { return name ? name.trim().charAt(0).toUpperCase() : fb; }
+  function applyProfile() {
+    var hn = P('herName') || 'Ира', mn = P('himName'), g = P('greeting');
+    avatar($('#av-her'), photoOf(profile, 'herPhoto'), letterOf(hn, '♥'));
+    avatar($('#av-him-sm'), photoOf(profile, 'himPhoto'), letterOf(mn, '♥'));
+    $('#enter-name').textContent = hn;
+    $('#her-nav').textContent = hn + ' ♥';
+    $('#her-greet').textContent = g; $('#her-greet').hidden = !g;
+    $('#him-who').textContent = mn ? 'Привет, ' + mn : 'Твоя страница';
+    document.title = 'Для ' + hn.replace(/а$/, 'ы') + ' ♥';
+  }
+  applyProfile();
 
   /* ---------- экраны и вкладки ---------- */
   function show(name) {
@@ -547,11 +601,11 @@ span.check { cursor: default; }
   var poll = null;
   function startPoll() { stopPoll(); poll = setInterval(function () { load().then(renderHim); }, 15000); }
   function stopPoll() { if (poll) clearInterval(poll); poll = null; }
-  $('#refresh').addEventListener('click', function () { load().then(renderHim); });
+  $('#refresh').addEventListener('click', function () { load().then(function () { renderHim(); applyProfile(); }); });
   $('#exit').addEventListener('click', function () { try { sessionStorage.removeItem('ds3-auth'); } catch (e) {} show('landing'); });
 
   /* ---------- вход для автора ---------- */
-  function openHim() { show('him'); load().then(function () { renderHim(); renderHer(); }); }
+  function openHim() { show('him'); load().then(function () { renderHim(); renderHer(); applyProfile(); fillProfileForm(); }); }
   function askPin() { $('#pin').hidden = false; $('#pin-in').value = ''; $('#pin-err').textContent = ''; $('#pin-in').focus(); }
   $('#secret').addEventListener('click', function () {
     var ok = false; try { ok = sessionStorage.getItem('ds3-auth') === '1'; } catch (e) {}
@@ -567,9 +621,59 @@ span.check { cursor: default; }
   $('#pin-in').addEventListener('keydown', function (e) { if (e.key === 'Enter') checkPin(); if (e.key === 'Escape') $('#pin').hidden = true; });
   $('#pin-cancel').addEventListener('click', function () { $('#pin').hidden = true; });
 
+  /* ---------- профиль (редактирует автор) ---------- */
+  var draft = {}, pickKey = null;
+  function readPhoto(file, cb) {
+    var fr = new FileReader();
+    fr.onload = function () {
+      var img = new Image();
+      img.onload = function () {
+        var size = Math.min(img.width, img.height), out = 480, cv = document.createElement('canvas');
+        cv.width = cv.height = out;
+        cv.getContext('2d').drawImage(img, (img.width - size) / 2, (img.height - size) * 0.25, size, size, 0, 0, out, out);
+        cb(cv.toDataURL('image/jpeg', 0.82));
+      };
+      img.src = fr.result;
+    };
+    fr.readAsDataURL(file);
+  }
+  function profilePreview() {
+    var hn = draft.herName || C.herName || '', mn = draft.himName || C.himName || '';
+    avatar($('#pf-her-av'), photoOf(draft, 'herPhoto'), letterOf(hn, '♥'));
+    avatar($('#pf-him-av'), photoOf(draft, 'himPhoto'), letterOf(mn, '♥'));
+  }
+  function fillProfileForm() {
+    draft = {}; Object.keys(profile).forEach(function (k) { draft[k] = profile[k]; });
+    $('#pf-her-name').value = P('herName');
+    $('#pf-greet').value = P('greeting');
+    $('#pf-him-name').value = P('himName');
+    $('#pf-status').textContent = '';
+    profilePreview();
+  }
+  $('#pf-her-name').addEventListener('input', function (e) { draft.herName = e.target.value.trim(); });
+  $('#pf-greet').addEventListener('input', function (e) { draft.greeting = e.target.value.trim(); });
+  $('#pf-him-name').addEventListener('input', function (e) { draft.himName = e.target.value.trim(); });
+  [['her', 'herPhoto'], ['him', 'himPhoto']].forEach(function (a) {
+    $('#pf-' + a[0] + '-pick').addEventListener('click', function () { pickKey = a[1]; $('#pf-file').value = ''; $('#pf-file').click(); });
+    $('#pf-' + a[0] + '-clear').addEventListener('click', function () { draft[a[1]] = 'none'; profilePreview(); });
+  });
+  $('#pf-file').addEventListener('change', function (e) {
+    var f = e.target.files && e.target.files[0]; if (!f || !pickKey) return;
+    readPhoto(f, function (data) { draft[pickKey] = data; profilePreview(); $('#pf-status').textContent = 'Не забудь нажать «Сохранить».'; });
+  });
+  $('#pf-save').addEventListener('click', function () {
+    var st = $('#pf-status');
+    profile = {}; Object.keys(draft).forEach(function (k) { profile[k] = draft[k]; });
+    lsSet(LS.profile, profile); applyProfile();
+    if (!useDb) { st.textContent = 'Сохранено только на этом устройстве (база не подключена).'; return; }
+    st.textContent = 'Сохраняю…';
+    dbReq('profile', 'PUT', profile).then(function () { st.textContent = 'Сохранено. Ира увидит изменения при следующем открытии.'; })
+      .catch(function () { st.textContent = 'Не удалось сохранить в базу. Проверь правила Firebase.'; });
+  });
+
   /* ---------- старт ---------- */
   show('landing');
-  load().then(renderHer);
+  load().then(function () { renderHer(); applyProfile(); });
 })();
 </script>
 </body>
